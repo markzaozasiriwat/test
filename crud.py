@@ -2,11 +2,9 @@ import sqlite3
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
-# Connect to SQLite database
 conn = sqlite3.connect('mydatabase.db')
 cursor = conn.cursor()
 
-# Create table
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS employees (
         id INTEGER PRIMARY KEY,
@@ -18,7 +16,6 @@ cursor.execute('''
     )
 ''')
 
-# Function to create a new employee
 def create_employee(name, telephone, address, gender, photo_path):
     with open(photo_path, 'rb') as photo_file:
         photo_data = photo_file.read()
@@ -30,7 +27,6 @@ def create_employee(name, telephone, address, gender, photo_path):
     conn.commit()
     print("Employee created successfully!")
 
-# Function to read all employees
 def read_employees():
     cursor.execute('SELECT * FROM employees')
     rows = cursor.fetchall()
@@ -41,13 +37,11 @@ def read_employees():
         print("Telephone:", telephone)
         print("Address:", address)
         print("Gender:", gender)
-        # Save the photo data to a file
         with open(f'employee_{employee_id}.jpg', 'wb') as photo_file:
             photo_file.write(photo_data)
         print("Photo saved as employee_{employee_id}.jpg")
         print()
 
-# Function to update an employee
 def update_employee(employee_id, name, telephone, address, gender, photo_path):
     with open(photo_path, 'rb') as photo_file:
         photo_data = photo_file.read()
@@ -58,15 +52,13 @@ def update_employee(employee_id, name, telephone, address, gender, photo_path):
         WHERE id = ?
     ''', (name, telephone, address, gender, photo_data, employee_id))
     conn.commit()
-    print("Employee updated successfully!")
+    print("updated successfully!")
 
-# Function to delete an employee
 def delete_employee(employee_id):
     cursor.execute('DELETE FROM employees WHERE id = ?', (employee_id,))
     conn.commit()
-    print("Employee deleted successfully!")
+    print("deleted successfully!")
 
-# Main program loop
 while True:
     print("1. Create Employee")
     print("2. Read Employees")
@@ -81,8 +73,7 @@ while True:
         address = input("Enter employee address: ")
         gender = input("Enter employee gender: ")
 
-        # Open file dialog to select photo
-        Tk().withdraw()  # Hide the Tkinter main window
+        Tk().withdraw() 
         photo_path = askopenfilename(title="Select Employee Photo")
 
         create_employee(name, telephone, address, gender, photo_path)
@@ -95,5 +86,4 @@ while True:
         address = input("Enter new employee address: ")
         gender = input("Enter new employee gender: ")
 
-        # Open file dialog to select new photo
-        Tk().withdraw()  # Hide the Tk
+        Tk().withdraw()  
