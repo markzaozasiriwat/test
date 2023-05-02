@@ -1,70 +1,99 @@
-import random
 import sqlite3
-import io
 
-def convertToBinaryData(filename):
-    with open(filename, 'rb') as file:
-        blobData = file.read()
-    return blobData
+# Connect to SQLite database
+conn = sqlite3.connect('mydatabase.db')
+cursor = conn.cursor()
 
-def create_db():
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            create table docter_profile(
-              id integer PRIMARY KEY AUTOINCREMENT,
-              name text,
-              tel text,
-              address char(150),
-              gender text,
-              photo blob
-            )
-        """
-        con.execute(sql_cmd)
+# Create table
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS employees (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        telephone TEXT,
+        address TEXT,
+        gender TEXT,
+        photo BLOB
+    )
+''')
 
-def insert():
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            insert into docter_profile(name, tel, address, gender, photo) values('mark', '0868515912', '671/11', 'Male', ?);
-        """
-        con.execute(sql_cmd)
-def insert2(params):
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            insert into docter_profile(name, tel, address, gender, photo) values(?, ?, ?, ?, ?);
-        """
-        con.execute(sql_cmd, params)
-def update():
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            update docter_profile set address = 'kku'
-        """
-        con.execute(sql_cmd)
-def delete():
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            delete from docter_profile where gender = 'Male'
-        """
-        con.execute(sql_cmd)
-def select():
-    with sqlite3.connect("docter.sqlite") as con:
-        sql_cmd = """
-            select * from docter_profile
-        """
-        for row in con.execute(sql_cmd):
-            print(row)
+# Function to create a new employee
+def create_employee(name, telephone, address, gender, photo_path):
+    with open(photo_path, 'rb') as photo_file:
+        photo_data = photo_file.read()
 
+    cursor.execute('''
+        INSERT INTO employees (name, telephone, address, gender, photo)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (name, telephone, address, gender, photo_data))
+    conn.commit()
+    print("Employee created successfully!")
 
-if __name__ == '__main__':
-    #create_db() #commend in second time
-    # insert()
-    #insert(('hello', '123456789', '123/456', 'Female', ''))
-    # for _ in range(2):
-    #     n = input("input name:")
-    #     t = input("input tel:")
-    #     g = input("input gender:")
-    #     a = input("input address:")
-    #     p = input("input photo:")
-    #     insert((n,t,g,a,p))
-    # update()
-    delete()
-    select()
+# Function to read all employees
+def read_employees():
+    cursor.execute('SELECT * FROM employees')
+    rows = cursor.fetchall()
+    for row in rows:
+        employee_id, name, telephone, address, gender, photo_data = row
+        print("Employee ID:", employee_id)
+        print("Name:", name)
+        print("Telephone:", telephone)
+        print("Address:", address)
+        print("Gender:", gender)
+        # Save the photo data to a file
+        with open(f'employee_{employee_id}.jpg', 'wb') as photo_file:
+            photo_file.write(photo_data)
+        print("Photo saved as employee_{employee_id}.jpg")
+        print()
+
+# Function to update an employee
+def update_employee(employee_id, name, telephone, address, gender, photo_path):
+    with open(photo_path, 'rb') as photo_file:
+        photo_data = photo_file.read()
+
+    cursor.execute('''
+        UPDATE employees
+        SET name = ?, telephone = ?, address = ?, gender = ?, photo = ?
+        WHERE id = ?
+    ''', (name, telephone, address, gender, photo_data, employee_id))
+    conn.commit()
+    print("Employee updated successfully!")
+
+# Function to delete an employee
+def delete_employee(employee_id):
+    cursor.execute('DELETE FROM employees WHERE id = ?', (employee_id,))
+    conn.commit()
+    print("Employee deleted successfully!")
+
+# Main program loop
+while True:
+    print("1. Create Employee")
+    print("2. Read Employees")
+    print("3. Update Employee")
+    print("4. Delete Employee")
+    print("5. Exit")
+    choice = input("Enter your choice (1-5): ")
+
+    if choice == '1':
+        name = input("Enter employee name: ")
+        telephone = input("Enter employee telephone number: ")
+        address = input("Enter employee address: ")
+        gender = input("Enter employee gender: ")
+        photo_path = input("Enter path to employee photo: ")
+        create_employee(name, telephone, address, gender, photo_path)
+    elif choice == '2':
+        read_employees()
+    elif choice == '3':
+        employee_id = input("Enter employee ID: ")
+        name = input("Enter new employee name: ")
+        telephone = input("Enter new employee telephone number: ")
+        address = input("Enter new employee address: ")
+        gender = input("Enter new employee gender: ")
+        photo_path = input("Enter path to new employee photo: ")
+        update_employee(employee_id, name, telephone, address, gender, photo_path)
+    elif choice == '4':
+        employee_id = input("Enter employee ID: ")
+        delete_employee(employee_id)
+    elif choice == '5':
+        break
+    else:
+        print
