@@ -1,4 +1,6 @@
 import sqlite3
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
 # Connect to SQLite database
 conn = sqlite3.connect('mydatabase.db')
@@ -78,7 +80,11 @@ while True:
         telephone = input("Enter employee telephone number: ")
         address = input("Enter employee address: ")
         gender = input("Enter employee gender: ")
-        photo_path = input("Enter path to employee photo: ")
+
+        # Open file dialog to select photo
+        Tk().withdraw()  # Hide the Tkinter main window
+        photo_path = askopenfilename(title="Select Employee Photo")
+
         create_employee(name, telephone, address, gender, photo_path)
     elif choice == '2':
         read_employees()
@@ -88,12 +94,6 @@ while True:
         telephone = input("Enter new employee telephone number: ")
         address = input("Enter new employee address: ")
         gender = input("Enter new employee gender: ")
-        photo_path = input("Enter path to new employee photo: ")
-        update_employee(employee_id, name, telephone, address, gender, photo_path)
-    elif choice == '4':
-        employee_id = input("Enter employee ID: ")
-        delete_employee(employee_id)
-    elif choice == '5':
-        break
-    else:
-        print
+
+        # Open file dialog to select new photo
+        Tk().withdraw()  # Hide the Tk
